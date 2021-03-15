@@ -1,25 +1,31 @@
 const BaseEvent = require("../../utils/structures/BaseEvent");
+const channels = require("./channels.json");
+
+const lookForChannel = (mapVoiceToText, user) => {
+  let pair = mapVoiceToText.filter((element) => element.voice == user);
+  if (pair.length > 0) return pair[0].text;
+  else return null;
+};
 
 module.exports = class ChannelEvent extends BaseEvent {
   constructor() {
     super("voiceStateUpdate");
-    this.mapVoiceToText = new Map([
-      ["818439901098934292", "819264453097947176"],
-    ]); //[voice channel, hidden text channel]
+    this.mapVoiceToText = channels;
     this.channelMembers = []; //save voice channel members (used to check members that left the channel)
   }
+
   async run(client, oldState, newState) {
     let newUserChannel = newState.channelID;
     let oldUserChannel = oldState.channelID;
     if (
       newUserChannel !== null &&
-      this.mapVoiceToText.get(newUserChannel) !== undefined
+      lookForChannel(this.mapVoiceToText, newUserChannel) !== null
     ) {
       //give permissions to members in the voice
       client.channels.cache.get(newUserChannel).members.forEach((member) => {
         this.channelMembers.push(member.user.id);
         client.channels.cache
-          .get(this.mapVoiceToText.get(newUserChannel))
+          .get(lookForChannel(this.mapVoiceToText, newUserChannel))
           .updateOverwrite(member, {
             VIEW_CHANNEL: true,
           })
@@ -27,7 +33,7 @@ module.exports = class ChannelEvent extends BaseEvent {
       });
     } else if (
       oldUserChannel !== null &&
-      this.mapVoiceToText.get(oldUserChannel) !== undefined
+      lookForChannel(this.mapVoiceToText, oldUserChannel) !== null
     ) {
       let actualMembers = [];
       client.channels.cache.get(oldUserChannel).members.forEach((member) => {
@@ -40,7 +46,7 @@ module.exports = class ChannelEvent extends BaseEvent {
       //remove permissions to members that left channel
       difference.forEach((member) => {
         client.channels.cache
-          .get(this.mapVoiceToText.get(oldUserChannel))
+          .get(lookForChannel(this.mapVoiceToText, oldUserChannel))
           .updateOverwrite(member, {
             VIEW_CHANNEL: false,
           })
