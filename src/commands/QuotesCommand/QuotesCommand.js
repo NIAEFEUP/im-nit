@@ -1,21 +1,12 @@
 const BaseCommand = require('../../utils/structures/BaseCommand');
-const fs = require('fs');
-const { writeToFile } = require('./utils');
+const { writeToFile, readQuotesFromFile } = require('./utils');
 
 const filePath = 'src/commands/QuotesCommand/quotes.json';
 
 module.exports = class QuotesCommand extends BaseCommand {
     constructor() {
         super('quote', 'textAnswers', []);
-
-        this.quotes = {};
-        fs.readFile(filePath, 'utf8', (err, contents) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            this.quotes = JSON.parse(contents);
-        });
+        this.quotes = readQuotesFromFile(filePath);
     }
 
     async run(client, message, args) {
