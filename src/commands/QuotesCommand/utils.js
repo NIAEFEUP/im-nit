@@ -11,7 +11,9 @@ const writeToFile = (filePath, data) => {
 }
 
 const readQuotesFromFile = (filePath) => {
-    return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8', flag: "a+" }));
+    const data = fs.readFileSync(filePath, { encoding: 'utf8', flag: "a+" });
+    if (data === "") return {};
+    return JSON.parse(data);
 }
 
 module.exports = {

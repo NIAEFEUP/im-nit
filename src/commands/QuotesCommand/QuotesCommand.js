@@ -11,9 +11,7 @@ module.exports = class QuotesCommand extends BaseCommand {
 
     async run(client, message, args) {
         if (!args[0]) {
-            const quoteValues = Object.values(this.quotes);
-            const randomQuote = quoteValues[quoteValues.length * Math.random() << 0];
-            message.channel.send(randomQuote);
+            this.randomQuote(client, message);
             return;
           }
 
@@ -36,6 +34,17 @@ module.exports = class QuotesCommand extends BaseCommand {
                     client.prefix + "quote add [NAME] [NEW QUOTE]\n" +
                     client.prefix + "quote delete [NAME]");
         }
+    }
+
+    randomQuote(client, message) {
+        const quoteValues = Object.values(this.quotes);
+        if (quoteValues.length === 0) {
+            message.channel.send("There are no quotes available. To add one, type:\n"
+                + client.prefix + "quote add [NAME] [NEW QUOTE]");
+            return;
+        }
+        const randomQuote = quoteValues[quoteValues.length * Math.random() << 0];
+        message.channel.send(randomQuote);
     }
 
     addQuote(client, message, args) {
