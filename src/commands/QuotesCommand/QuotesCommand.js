@@ -19,7 +19,7 @@ module.exports = class QuotesCommand extends BaseCommand {
 
         const firstArg = args[0].toLowerCase();
         if (this.quotes[firstArg]) {
-            message.channel.send(this.quotes[args[0].toLowerCase()]);
+            message.channel.send(this.quotes[firstArg]);
             return;
         }
         // It's either an operation or a mistake

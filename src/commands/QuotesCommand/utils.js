@@ -11,14 +11,7 @@ const writeToFile = (filePath, data) => {
 }
 
 const readQuotesFromFile = (filePath) => {
-    fs.readFile(filePath, { flag: "a+" }, (err, contents) => {
-        if (err) {
-            console.error(err);
-            return {};
-        }
-        if (!contents[0]) return {};  // file was just created
-        return JSON.parse(contents);
-    });
+    return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8', flag: "a+" }));
 }
 
 module.exports = {
