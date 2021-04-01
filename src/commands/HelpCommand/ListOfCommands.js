@@ -13,8 +13,8 @@ module.exports = class ListOfCommands extends BaseCommand {
             "Hi, my name is Nit, and I am a nit bot! :nerd: \n" +
             "\n" + 
             "**Quote** \n" + 
-            "`" + client.prefix + "quote` - Save iconic phrases and moments \n" + 
-            "`" + client.prefix + "quote [NAME]` - Shows random quote \n"  +
+            "`" + client.prefix + "quote` - Shows random quote \n" + 
+            "`" + client.prefix + "quote [NAME]` - Shows a quote with a certain name \n"  +
             "`" + client.prefix + "quote add [NAME] [NEW QUOTE]` - Adds quote \n" + 
             "`" + client.prefix + "quote delete [NAME]` - Deletes quote \n" + 
             "\n" + 
