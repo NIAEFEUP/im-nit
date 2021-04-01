@@ -19,7 +19,7 @@ module.exports = class ListOfCommands extends BaseCommand {
             "`" + client.prefix + "quote delete [NAME]` - Deletes quote \n" + 
             "\n" + 
             "**Others** \n" + 
-            "`" + client.prefix + "help` - I'll send you these message \n" + 
+            "`" + client.prefix + "help` - I'll send you this message \n" + 
             "\n" + 
             "**Text Channels** \n" +
             "I allow you to have have texts channels that are only available when you are using the voice channel!");
