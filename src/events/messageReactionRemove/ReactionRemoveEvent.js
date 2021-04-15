@@ -19,6 +19,7 @@ module.exports = class MessageEvent extends BaseEvent {
     client.nistery.players = client.nistery.players.filter((player) => player.id !== user.id);
     message.edit("Welcome to Murder NIstery! The game where you can kill your friends for fun 😈\n" +
     "Sounds good? Then hit the emoji below to join in 🤫\n" +
-    `Players: ${client.nistery.players.length}/5`);
+    `Players: ${client.nistery.players.length}/5\n` +
+    `Type \`${client.prefix}nistery start\` to start the game`);
   }
 }
