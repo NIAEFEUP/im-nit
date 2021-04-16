@@ -1,4 +1,5 @@
 const BaseEvent = require('../../utils/structures/BaseEvent');
+const State = require('../../utils/structures/NisteryStates');
 
 module.exports = class MessageEvent extends BaseEvent {
   constructor() {
@@ -14,7 +15,7 @@ module.exports = class MessageEvent extends BaseEvent {
   }
 
   nisteryPlayerJoined(client, user, message) {
-    if (client.nistery.state != 1 || client.nistery.players.length >= 5) return;
+    if (client.nistery.state != State.INTRO || client.nistery.players.length >= 5) return;
 
     for (let player of client.nistery.players)
         if (player.id === user.id) return;

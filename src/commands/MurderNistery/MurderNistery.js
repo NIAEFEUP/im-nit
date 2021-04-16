@@ -1,4 +1,5 @@
 const BaseCommand = require('../../utils/structures/BaseCommand');
+const State = require('../../utils/structures/NisteryStates');
 
 module.exports = class TestCommand extends BaseCommand {
   constructor() {
@@ -21,7 +22,7 @@ module.exports = class TestCommand extends BaseCommand {
 
   async gameIntro(client, message) {
     client.nistery = {
-        state: 1,  // change this so we don't use magic numbers
+        state: State.INTRO,  // change this so we don't use magic numbers
         players: []
     };
 
@@ -43,7 +44,7 @@ module.exports = class TestCommand extends BaseCommand {
         return;
     }
 
-    client.nistery.state = 2;
+    client.nistery.state = State.START;
     channel.send("Alright, let's start the game. I sent you a private message with some instructions\n" +
     `If you need more help, type ${client.prefix}nistery help`);
 

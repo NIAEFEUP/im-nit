@@ -1,4 +1,5 @@
 const BaseEvent = require('../../utils/structures/BaseEvent');
+const State = require('../../utils/structures/NisteryStates');
 
 module.exports = class MessageEvent extends BaseEvent {
   constructor() {
@@ -14,7 +15,7 @@ module.exports = class MessageEvent extends BaseEvent {
   }
 
   nisteryPlayerLeft(client, user, message) {
-    if (client.nistery.state != 1) return;
+    if (client.nistery.state != State.INTRO) return;
 
     client.nistery.players = client.nistery.players.filter((player) => player.id !== user.id);
     message.edit("Welcome to Murder NIstery! The game where you can kill your friends for fun 😈\n" +
