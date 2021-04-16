@@ -26,19 +26,17 @@ module.exports = class TestCommand extends BaseCommand {
         players: []
     };
 
-    await message.channel.send("Welcome to Murder NIstery! The game where you can kill your friends for fun 😈\n" +
-    "Sounds good? Then hit the emoji below to join in 🤫\n" +
-    "Players: 0/5\n" +
-    `Type \`${client.prefix}nistery start\` to start the game`)
-    .then((newMessage) => {
-        newMessage.react('🔪');
-        client.nistery.joiningMessage = newMessage.id;
-    })
-    .catch(console.error);
+    const newMessage = await message.channel.send("Welcome to Murder NIstery! The game where you can kill your friends for fun 😈\n" +
+      "Sounds good? Then hit the emoji below to join in 🤫\n" +
+      "Players: 0/5\n" +
+      `Type \`${client.prefix}nistery start\` to start the game`);
+
+    newMessage.react('🔪');
+    client.nistery.joiningMessage = newMessage.id;
   }
 
-  gameStart(client, channel) {
-    if (client.nistery.players.length <= 3) {
+  async gameStart(client, channel) {
+    if (client.nistery.players.length <= 0) {
         channel.send("It's not fun if there is nobody to catch the murderer 😟\n" +
         "You need at least 4 players for this game");
         return;
@@ -48,12 +46,48 @@ module.exports = class TestCommand extends BaseCommand {
     channel.send("Alright, let's start the game. I sent you a private message with some instructions\n" +
     `If you need more help, type ${client.prefix}nistery help`);
 
+    client.nistery.killerID = client.nistery.players[Math.floor(Math.random() * client.nistery.players.length)].id;
+
+    const messagingPromises = [];
     for (let player of client.nistery.players) {
-        this.messagePlayer(client, player);
+      player.traits = [];
+      messagingPromises.push(this.messagePlayer(client, player));
+    }
+    await Promise.all(messagingPromises);
+
+    for (let player of client.nistery.players) {
+      channel.send(player.username + " " + player.traits.toString());
     }
   }
 
-  messagePlayer(client, user) {
-    user.send("Sup bro");
+  async messagePlayer(client, user) {
+    if (user.id === client.killerID) {
+      user.send("You are an innocent user of this Discord 😖. Your job is to catch the friend of yours who I turned into a murderer 😳\n" +
+        "For that, I need you to tell me a characteristic of each one of the players, so they can be used as hints 🕵️\n" +
+        "And remember: don't be too **obvious** or too **vague**");
+    } else {
+      user.send("You were chosen as the bloodthirsty killer 🔪. Your job is to try and kill all your friends without being caught 🤫\n" +
+        "But first, I need you to tell me a characteristic of each one of the players, so you can mock them when they're dead 😈\n");
+    }
+
+    for (let i = 0; i < client.nistery.players.length; ++i) {
+      const player = client.nistery.players[i];
+      let message;
+      if (player.id === user.id)
+        message = "Tell me a trait of yourself";
+      else
+        message = `Tell me a trait of @${player.username}`;
+
+      await user.send(message);
+
+      let userMessage = await user.dmChannel.awaitMessages(m => m.author.id === user.id, {
+        max: 1,
+        time: 30000,
+        errors: ['time']
+      });
+
+      userMessage = userMessage.first();
+      client.nistery.players[i].traits.push(userMessage.content);
+    }
   }
 }
