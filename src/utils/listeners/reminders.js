@@ -1,4 +1,3 @@
-const { MessageMentions } = require('discord.js');
 const scheduledSchema = require('../../models/scheduled-schema');
 
 const timeoutDelay = 30;    // time between checkForPosts function calls
