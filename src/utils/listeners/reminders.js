@@ -1,35 +1,41 @@
 const scheduledSchema = require('../../models/scheduled-schema');
 
-module.exports = (client) => {     // recursive functions each 10 secs
-    const checkForPosts = async () => {
-        const query = {
-            date: {
-                $lte: Date.now()
-            }
-        };
+const timeoutDelay = 30;    // time between checkForPosts function calls
 
-        const results = await scheduledSchema.find(query);
+/**
+ * Recursively check for reminders
+ * @param {*} client 
+ */
+const checkForPosts = async (client) => {
+    const query = {
+        date: {
+            $lte: Date.now()        // Dates less than now
+        }
+    };
 
-        for (const post of results) {
-            const {guildId, channelId, content} = post;
+    const results = await scheduledSchema.find(query);
 
-            const guild = await client.guilds.fetch(guildId);
-            if(!guild){ // if the bot cant find the guild, for example the bot was kicked out
-                continue;
-            }
+    for (const post of results) {
+        const {guildId, channelId, content} = post;
 
-            const channel = await guild.channels.cache.get(channelId);
-            if(!channel) {  // if the bot cant find the channel, for example the channel was deleted
-                continue;
-            }
-
-            channel.send(content);  // send the message to the target channel
+        const guild = await client.guilds.fetch(guildId);
+        if(!guild){ // if the bot cant find the guild, for example the bot was kicked out
+            continue;
         }
 
-        await scheduledSchema.deleteMany(query);
+        const channel = await guild.channels.cache.get(channelId);
+        if(!channel) {  // if the bot cant find the channel, for example the channel was deleted
+            continue;
+        }
 
-        setTimeout(checkForPosts, 1000*10);     // check each 10 seconds
+        channel.send(content);  // send the message to the target channel
     }
 
-    checkForPosts();
-};
+    await scheduledSchema.deleteMany(query);
+
+    setTimeout(function() {
+        checkForPosts(client);
+    }, 1000 * timeoutDelay);     // check each <timeoutDelay> seconds
+}
+
+module.exports = checkForPosts;
