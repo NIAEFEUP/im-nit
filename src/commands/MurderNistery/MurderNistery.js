@@ -13,7 +13,7 @@ module.exports = class TestCommand extends BaseCommand {
         return;
     }
 
-    if (client.nisteryState) {
+    if (client.nistery) {
         message.channel.send("There's already a game in progress. You're really eager to kill your friends, aren't you? 🧐");
         return;
     }
@@ -43,25 +43,26 @@ module.exports = class TestCommand extends BaseCommand {
         return;
     }
 
-    client.nistery.state = State.START;
+    client.nistery.state = State.GAME;
     channel.send("Alright, let's start the game. I sent you a private message with some instructions\n" +
     `If you need more help, type ${client.prefix}nistery help`);
 
-    client.nistery.killerID = client.nistery.players[Math.floor(Math.random() * client.nistery.players.length)].id;
+    client.nistery.killerPos = Math.floor(Math.random() * client.nistery.players.length);
+    client.nistery.killerID = client.nistery.players[client.nistery.killerPos].id;
 
     const messagingPromises = [];
     for (let i = 0; i < client.nistery.players.length; ++i) {
       const player = client.nistery.players[i];
-      player.traits = [];
+      player.traits = new Array(client.nistery.players.length).fill("");
       player.emoji = playerEmojis[i];
       player.alive = true;
-      messagingPromises.push(this.messagePlayer(client, player));
+      messagingPromises.push(this.messagePlayer(client, player, i));
     }
     await Promise.all(messagingPromises);
     this.mainGame(client, channel);
   }
 
-  async messagePlayer(client, user) {
+  async messagePlayer(client, user, userIndex) {
     if (user.id !== client.nistery.killerID) {
       await user.send("You are an innocent user of this Discord 😖. Your job is to catch the friend of yours who I turned into a murderer 😳\n" +
         "For that, I need you to tell me a characteristic of each one of the players, so they can be used as hints 🕵️\n" +
@@ -89,18 +90,17 @@ module.exports = class TestCommand extends BaseCommand {
         });
 
         userMessage = userMessage.first();
-        client.nistery.players[i].traits.push(userMessage.content);
+        client.nistery.players[i].traits[userIndex] = userMessage.content;
     } catch(e) {
         console.log(e);
         user.send("You took too long... Please have more attention next time");
-        client.nistery.players[i].traits.push("normal");
+        client.nistery.players[i].traits[userIndex] = "normal";
       }
     }
   }
 
   async mainGame(client, channel) {
-    client.deadCount = 0;
-    client.nistery.state = State.GAME;
+    client.nistery.deadCount = 0;
 
     channel.send(`${client.nistery.players.length} young friends arrive at the voice channel where they always meet each other. ` + 
     "Little do they know that one of them had already been corrupted by a crazy self-aware bot 🤭\n" +
@@ -110,54 +110,74 @@ module.exports = class TestCommand extends BaseCommand {
       channel.send("Uhuu, it's night time 🤩 Dear murderer, you can choose your victim. Everyone else can also set a death message, if they wish to... 😒");
 
       const PMs = [];
-      let deadPos;
       for (let player of client.nistery.players) {
         if (player.id === client.nistery.killerID)
-          PMs.push(deadPos = this.nightKiller(client, player));
+          PMs.push(this.nightKiller(client, player));
         else
           PMs.push(this.innoNight(client, player));
       }
       await Promise.all(PMs);
+      const deadPos = await Promise.resolve(PMs[client.nistery.killerPos]);
+      if (deadPos === -1)  // nobody died
+        await channel.send("How lame 😒 The murderer didn't kill anybody tonight... But you can still lynch someone 😈");
+      else {
+        const victim = client.nistery.players[deadPos].tag;
+        const victimTrait = client.nistery.players[deadPos].traits[client.nistery.killerPos];
+        const killerTrait = client.nistery.players[client.nistery.killerPos].traits[deadPos];
+        const will = client.nistery.players[deadPos].will;
 
-      if (!deadPos) {  // nobody died
+        let message = `Oh no 😭 @${victim} was murdered last night 😱 I was totally not exepecting that 🤭\n` +
+        `The culprit looked at his victim through the window and thought to himself how ${victimTrait} this person was. But they had to die anyway\n` +
+        "\nHowever, just before getting their throat sliced, the prey caught a glance of their predator and told him:\n" +
+        `\`You little prick! And here I was just thinking how ${killerTrait} you were\`\n`;
 
+        if (will)
+          message += `\nAlong with their body, the police also found a written will:\n\`${will}\``;
+        else
+          message += "\nThere was no will found near the body";
+
+        await channel.send(message);
       }
 
+      if (client.nistery.deadCount >= client.nistery.players.length - 2) {
+        this.endGame(client, channel);
+        return;
+      }
 
+      await this.lynch(client, channel);
+      if (!client.nistery.players[client.nistery.killerPos].alive || client.nistery.deadCount >= client.nistery.players.length - 2) {
+        this.endGame(client, channel);
+        return;
+      }
     }
   }
 
   async nightKiller(client, user) {
     let messageString = "Use the emojis below to choose your victim. Also, it's pretty lame but you can press the ❌ if you don't want to kill anybody...\n";
-    let killerPos;
     const reactions = [];
 
-    for (let i = 0; i < client.nistery.players.length; ++i) {
-      if (client.nistery.players[i].id === user.id) {
-        killerPos = i;
-        continue;
-      }
-      message += client.nistery.players[i].username + ": " + playerEmojis[i];
-      reactions.push(playerEmojis[i]);
-    }
+    client.nistery.players.forEach((player, i) => {
+      if (player.id === user.id) return;
+      messageString += player.username + ": " + player.emoji;
+      reactions.push(player.emoji);
+    });
+    reactions.push('❌');
 
     const message = await user.send(messageString);
-    reactions.push('❌');
-    for (let react of reactions)
-      if (react != client.nistery.players[killerPos].emoji)
+    reactions.forEach((react) => {
+      if (react != client.nistery.players[client.nistery.killerPos].emoji)
         message.react(react);
+    });
 
     try {
-      const reaction = await message.awaitReactions((r, u) => r.emoji.name in reactions
-                                          && r.emoji.name != client.nistery.players[killerPos].emoji
-                                          && u.id === user.id, {
+      const reaction = await message.awaitReactions((r, u) => true, {
         max: 1,
         time: 30000,
         errors: ['time']
       });
 
       const emoji = reaction.first().emoji.name;
-      if (emoji === '❌') return;
+      if (emoji === '❌') return -1;
 
       for (let i = 0; i < client.nistery.players.length; ++i)
         if (emoji === client.nistery.players[i].emoji) {
@@ -168,6 +188,7 @@ module.exports = class TestCommand extends BaseCommand {
     } catch(e) {
       console.log(e);
       user.send("You took too long to choose your victim. Now you can't kill anybody 😤");
+      return -1;
     }
   }
 
@@ -188,5 +209,18 @@ module.exports = class TestCommand extends BaseCommand {
       console.log(e);
       user.send("The night has ended. Try to type faster next time 😠");
     }
+  }
+
+  async lynch(client, channel) {
+    channel.send("Lynching....");
+  }
+
+  endGame(client, channel) {
+    const killer = client.nistery.players[client.nistery.killerPos];
+    if (killer.alive)
+      channel.send(`The murderer won and you all died 🤯. Congratulations, @${killer.tag} and good luck for your next killing streak 😉`);
+    else
+      channel.send(`The murderer was lynched 😱 The innocent people won 🥳 Nice try, @${killer.tag}`);
+    delete client.nistery;
   }
 }
