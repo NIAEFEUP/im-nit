@@ -12,7 +12,10 @@ module.exports = class ReminderCommand extends BaseCommand {
   async run(client, message, args) {    // expectedArgs: '<Channel tag> <YYYY/MM/DD> <HH:MM> <"AM" or "PM"> <Timezone>',
     const { mentions, guild, channel } = message; 
     
+    const userID = message.author.id;   // userID will be needed to tag the person on the reminder
+
     const targetChannel = mentions.channels.first();
+    
     if(!targetChannel){
         message.reply('Please tag a channel to send your message in');
         return;
@@ -66,7 +69,8 @@ module.exports = class ReminderCommand extends BaseCommand {
                 date: targetDate.valueOf(),
                 content: collectedMessage.content,
                 guildId: guild.id,
-                channelId: targetChannel.id
+                channelId: targetChannel.id,
+                userId: userID,
             }).save();
             message.reply('Your message has been scheduled.');
         } catch(err){

@@ -1,3 +1,4 @@
+const { MessageMentions } = require('discord.js');
 const scheduledSchema = require('../../models/scheduled-schema');
 
 const timeoutDelay = 30;    // time between checkForPosts function calls
@@ -16,7 +17,7 @@ const checkForPosts = async (client) => {
     const results = await scheduledSchema.find(query);
 
     for (const post of results) {
-        const {guildId, channelId, content} = post;
+        const {guildId, channelId, content, userId} = post;
 
         const guild = await client.guilds.fetch(guildId);
         if(!guild){ // if the bot cant find the guild, for example the bot was kicked out
@@ -27,9 +28,9 @@ const checkForPosts = async (client) => {
         if(!channel) {  // if the bot cant find the channel, for example the channel was deleted
             continue;
         }
-
-        channel.send(content);  // send the message to the target channel
-    }
+        
+        channel.send(`<@${userId}> ${content}`);  // send the message to the target channel tagging the person
+    }   
 
     await scheduledSchema.deleteMany(query);
 
