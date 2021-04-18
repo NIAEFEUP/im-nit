@@ -18,17 +18,27 @@ const checkForPosts = async (client) => {
     for (const post of results) {
         const {guildId, channelId, content, userId} = post;
 
-        const guild = await client.guilds.fetch(guildId);
-        if(!guild){ // if the bot cant find the guild, for example the bot was kicked out
-            continue;
-        }
+        if (!channelId) {     // reminder is going to be sent directly to the user
+            let targetUser = await client.users.fetch(userId).catch(() => null);
 
-        const channel = await guild.channels.cache.get(channelId);
-        if(!channel) {  // if the bot cant find the channel, for example the channel was deleted
-            continue;
+            if(!targetUser){    // if user not found
+                continue;
+            }
+
+            targetUser.send(content);
+        } else {
+            const guild = await client.guilds.fetch(guildId);
+            if(!guild){ // if the bot cant find the guild, for example the bot was kicked out
+                continue;
+            }
+
+            const channel = await guild.channels.cache.get(channelId);
+            if(!channel) {  // if the bot cant find the channel, for example the channel was deleted
+                continue;
+            }
+            
+            channel.send(`<@${userId}> ${content}`);  // send the message to the target channel tagging the person
         }
-        
-        channel.send(`<@${userId}> ${content}`);  // send the message to the target channel tagging the person
     }   
 
     await scheduledSchema.deleteMany(query);
