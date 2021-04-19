@@ -169,7 +169,7 @@ module.exports = class TestCommand extends BaseCommand {
         message.react(react);
     });
 
-    try {
+    try {  // there's a condition missing here
       const reaction = await message.awaitReactions((r, u) => true, {
         max: 1,
         time: 30000,
@@ -182,7 +182,7 @@ module.exports = class TestCommand extends BaseCommand {
       for (let i = 0; i < client.nistery.players.length; ++i)
         if (emoji === client.nistery.players[i].emoji) {
           client.nistery.players[i].alive = false;
-          client.deadCount++;
+          client.nistery.deadCount++;
           return i;
         }
     } catch(e) {
@@ -212,7 +212,41 @@ module.exports = class TestCommand extends BaseCommand {
   }
 
   async lynch(client, channel) {
-    channel.send("Lynching....");
+    // Maybe, we should only accept a vote if the majority voted for that player
+    await channel.send("The sun has risen 🌄 You have now 40 seconds to vote and lynch someone using the emojis below. The person with the majority of votes dies ☠️");
+
+    let message = "Voting results:\n";
+    client.nistery.players.forEach((p) => message += `${p.username}: 0 votes`);
+    message += "No lynch: 0 votes";
+    client.nistery.voteMessage = channel.send(message);
+
+    client.nistery.players.forEach((p) => client.nistery.voteMessage.react(p.emoji));
+    client.nistery.voteMessage.react('❌');
+
+    await sleep(40000);
+
+    let mostVoted = 0;
+    let maxVotes = 0;
+    client.nistery.players.forEach((p, i) => {
+      const numVotes = client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === p.emoji).size;
+      if (numVotes > maxVotes) mostVoted = i;
+    });
+
+    if (client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === '❌').size > maxVotes) {
+      await channel.send("You decided not to lynch anybody, how lame... 😒");
+      return;
+    }
+  
+    const deadPlayer = client.nistery.player[mostVoted];
+    deadPlayer.alive = false;
+    client.nistery.deadCount++;
+
+    message = `${deadPlayer.username} was lynched. `;
+    if (deadPlayer.id === client.nistery.killerID)
+      message += "He was the KILLER 😱";
+    else
+      message += "He was just an innocent person 😭";
+    await channel.send(message);
   }
 
   endGame(client, channel) {
@@ -220,7 +254,7 @@ module.exports = class TestCommand extends BaseCommand {
     if (killer.alive)
       channel.send(`The murderer won and you all died 🤯. Congratulations, @${killer.tag} and good luck for your next killing streak 😉`);
     else
-      channel.send(`The murderer was lynched 😱 The innocent people won 🥳 Nice try, @${killer.tag}`);
+      channel.send(`The murderer was lynched 😬 The innocent people won 🥳 Nice try, @${killer.tag}`);
     delete client.nistery;
   }
 }
