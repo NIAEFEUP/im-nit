@@ -1,12 +1,12 @@
 const scheduledSchema = require('../../models/scheduled-schema');
 
-const timeoutDelay = 30;    // time between checkForPosts function calls
+const timeoutDelay = 30;    // time between checkForReminders function calls
 
 /**
  * Recursively check for reminders
  * @param {*} client 
  */
-const checkForPosts = async (client) => {
+const checkForReminders = async (client) => {
     const query = {
         date: {
             $lte: Date.now()        // Dates less than now
@@ -44,8 +44,8 @@ const checkForPosts = async (client) => {
     await scheduledSchema.deleteMany(query);
 
     setTimeout(function() {
-        checkForPosts(client);
+        checkForReminders(client);
     }, 1000 * timeoutDelay);     // check each <timeoutDelay> seconds
 }
 
-module.exports = checkForPosts;
+module.exports = checkForReminders;

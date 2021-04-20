@@ -31,6 +31,9 @@ module.exports = class ReminderCommand extends BaseCommand {
 
     let [date, time, clockType, timeZone] = argsParser(args, parsingType);
     
+    if(clockType){
+        clockType = clockType.toUpperCase();
+    }
     if(clockType !== 'AM' && clockType !== 'PM'){
         message.reply(`You must provide either "AM" or "PM", you provided "${clockType}"`);
         return;
