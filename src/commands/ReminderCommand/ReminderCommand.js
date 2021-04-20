@@ -3,7 +3,8 @@ const momentTimezone = require('moment-timezone');
 const { MessageCollector } = require('discord.js');
 
 const scheduledSchema = require('../../models/scheduled-schema');
-const argsParser = require('./utils/argsParser');
+const {argsParser, parsingTypes} = require('./utils/argsParser');
+const showInstructions = require('./utils/help');
 
 module.exports = class ReminderCommand extends BaseCommand {
   constructor() {
@@ -23,10 +24,16 @@ module.exports = class ReminderCommand extends BaseCommand {
     }
 
     let identifierArg = args[0];
-    let parsingType = 1;
+
+    if(!identifierArg || identifierArg == 'help'){
+        showInstructions(message);
+        return;
+    }
+
+    let parsingType = parsingTypes.HUMAN_LANGUAGE;
 
     if(isNaN(identifierArg)){   // if not a number
-        parsingType = 0;
+        parsingType = parsingTypes.FORMAL;
     }
 
     let [date, time, clockType, timeZone] = argsParser(args, parsingType);
@@ -35,7 +42,7 @@ module.exports = class ReminderCommand extends BaseCommand {
         clockType = clockType.toUpperCase();
     }
     if(clockType !== 'AM' && clockType !== 'PM'){
-        message.reply(`You must provide either "AM" or "PM", you provided "${clockType}"`);
+        showInstructions(message);
         return;
     }
 

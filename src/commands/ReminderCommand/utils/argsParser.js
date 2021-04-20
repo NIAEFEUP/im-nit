@@ -1,5 +1,10 @@
 const momentTimezone = require('moment-timezone');
 
+const parsingTypes = {
+    FORMAL: 0,
+    HUMAN_LANGUAGE: 1,
+}
+
 /**
  * 
  * @param {*} args 
@@ -8,9 +13,9 @@ const momentTimezone = require('moment-timezone');
  */
 const argsParser = (args, parsingType) => {
     switch(parsingType){
-        case 0:
+        case parsingTypes.FORMAL:
             return args;
-        case 1:
+        case parsingTypes.HUMAN_LANGUAGE:
             let currDate = Date.now();
 
             const milliToSeconds = 1000;
@@ -35,6 +40,8 @@ const argsParser = (args, parsingType) => {
                     case 'months':
                         currDate += parseInt(timeOffset) * 30 * 24 * 60 * 60 * milliToSeconds;  // assuming all months have 30 days
                         break;
+                    default:
+                        break;
                 }
                 args.shift(); args.shift();
             }
@@ -56,4 +63,5 @@ const argsParser = (args, parsingType) => {
     }
 }
 
-module.exports = argsParser;
+module.exports.argsParser = argsParser;
+module.exports.parsingTypes = parsingTypes;
