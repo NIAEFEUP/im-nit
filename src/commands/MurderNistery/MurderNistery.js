@@ -38,7 +38,7 @@ module.exports = class TestCommand extends BaseCommand {
 
   async gameStart(client, channel) {
     delete client.nistery.joiningMessage;
-    if (client.nistery.players.length <= 3) {
+    if (client.nistery.players.length <= 0) {
         channel.send("It's not fun if there is nobody to catch the murderer 😟\n" +
         "You need at least 4 players for this game");
         return;
@@ -127,10 +127,10 @@ module.exports = class TestCommand extends BaseCommand {
         const killerTrait = client.nistery.players[client.nistery.killerPos].traits[deadPos];
         const will = client.nistery.players[deadPos].will;
 
-        let message = `Oh no 😭 ${victim} was murdered last night 😱 I was totally not exepecting that 🤭\n` +
-        `The culprit looked at his victim through the window and thought to himself how ${victimTrait} this person was. But they had to die anyway\n` +
+        let message = `Oh no 😭 **${victim}** was murdered last night 😱 I was totally not exepecting that 🤭\n` +
+        `The culprit looked at his victim through the window and thought to himself how **${victimTrait}** this person was. But they had to die anyway\n` +
         "\nHowever, just before getting their throat sliced, the prey caught a glance of their predator and told him:\n" +
-        `\`You little prick! And here I was just thinking how ${killerTrait} you were\`\n`;
+        `\`You little prick! And here I was just thinking how **${killerTrait}** you were\`\n`;
 
         if (will)
           message += `\nAlong with their body, the police also found a written will:\n\`${will}\``;
