@@ -1,4 +1,3 @@
-const { Channel } = require('discord.js');
 const BaseEvent = require('../../utils/structures/BaseEvent');
 const State = require('../../utils/structures/NisteryStates');
 
@@ -12,7 +11,7 @@ module.exports = class MessageEvent extends BaseEvent {
     const emoji = reaction.emoji.name;
 
     if (reaction.message.id === client.nistery?.joiningMessage && emoji === '🔪')
-        this.nisteryPlayerJoined(client, user, reaction.message);
+      this.nisteryPlayerJoined(client, user, reaction.message);
     if (reaction.message.id === client.nistery?.voteMessage)
       this.nisteryLynchVoting(client, reaction, user);
   }

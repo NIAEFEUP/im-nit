@@ -11,7 +11,7 @@ module.exports = class MessageEvent extends BaseEvent {
     const emoji = reaction.emoji.name;
 
     if (reaction.message.id === client.nistery?.joiningMessage && emoji === '🔪')
-        this.nisteryPlayerLeft(client, user, reaction.message);
+      this.nisteryPlayerLeft(client, user, reaction.message);
     if (reaction.message.id === client.nistery?.voteMessage)
       this.nisteryLynchUnvoting(client, reaction, user);
   }
@@ -31,8 +31,8 @@ module.exports = class MessageEvent extends BaseEvent {
     if (!player) return;  // user external to the game
 
     const emojiName = reaction.emoji.name;
-    const player = client.nistery.players.find(p => p.emoji === emojiName);
-    if (!player && emojiName !== '❌') return;  // useless emoji
+    const votedPlayer = client.nistery.players.find(p => p.emoji === emojiName);
+    if (!votedPlayer && emojiName !== '❌') return;  // useless emoji
 
     // Update message
     let message = "Voting results:\n";
