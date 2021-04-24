@@ -1,5 +1,6 @@
 const BaseCommand = require('../../utils/structures/BaseCommand');
 const State = require('../../utils/structures/NisteryStates');
+const { sleep } = require('./utils');
 const playerEmojis = ['😴', '😷', '🤥', '🤓', '🤔', '❌'];
 
 module.exports = class TestCommand extends BaseCommand {
