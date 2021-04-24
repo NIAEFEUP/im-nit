@@ -33,17 +33,17 @@ module.exports = class TestCommand extends BaseCommand {
       `Type \`${client.prefix}nistery start\` to start the game`);
 
     newMessage.react('🔪');
-    client.nistery.joiningMessage = newMessage.id;
+    client.nistery.joiningMessageID = newMessage.id;
   }
 
   async gameStart(client, channel) {
-    if (client.nistery.players.length <= 0) {
+    if (client.nistery.players.length <= 3) {
         channel.send("It's not fun if there is nobody to catch the murderer 😟\n" +
         "You need at least 4 players for this game");
         return;
     }
 
-    delete client.nistery.joiningMessage;
+    delete client.nistery.joiningMessageID;
     client.nistery.state = State.GAME;
 
     channel.send("Alright, let's start the game. I sent you a private message with some instructions\n" +
@@ -226,10 +226,12 @@ module.exports = class TestCommand extends BaseCommand {
     let message = "Voting results:\n";
     client.nistery.players.forEach((p) => message += `${p.emoji} ${p.username}: 0 votes\n`);
     message += "❌ No lynch: 0 votes";
-    client.nistery.voteMessage = channel.send(message);
 
-    client.nistery.players.forEach((p) => client.nistery.voteMessage.react(p.emoji));
-    client.nistery.voteMessage.react('❌');
+    const voteMessage = await channel.send(message);
+    client.nistery.voteMessage = voteMessage;
+
+    client.nistery.players.forEach((p) => voteMessage.react(p.emoji));
+    voteMessage.react('❌');
 
     await sleep(40000);
     delete client.nistery.voteMessage;
@@ -237,14 +239,14 @@ module.exports = class TestCommand extends BaseCommand {
     let mostVoted = 0;
     let maxVotes = 0;
     client.nistery.players.forEach((p, i) => {
-      const numVotes = client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === p.emoji).size;
+      const numVotes = voteMessage.reactions.cache.filter(r => r.emoji.name === p.emoji).size;
       if (numVotes > maxVotes) {
         mostVoted = i;
         maxVotes = numVotes;
       }
     });
 
-    if (client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === '❌').size > maxVotes
+    if (voteMessage.reactions.cache.filter(r => r.emoji.name === '❌').size > maxVotes
         || maxVotes - 1 <= client.nistery.players.length / 2) {
       await channel.send("The majority didn't vote on any player so nobody is lynched! How lame... 😒");
       return;

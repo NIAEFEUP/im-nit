@@ -17,9 +17,9 @@ module.exports = class MessageEvent extends BaseEvent {
 
     const emoji = reaction.emoji.name;
 
-    if (reaction.message.id === client.nistery.joiningMessage && emoji === '🔪')
+    if (reaction.message.id === client.nistery.joiningMessageID && emoji === '🔪')
       this.nisteryPlayerJoined(client, user, reaction.message);
-    if (reaction.message.id === client.nistery.voteMessage)
+    if (reaction.message.id === client.nistery.voteMessage?.id)
       this.nisteryLynchVoting(client, reaction, user);
   }
 
