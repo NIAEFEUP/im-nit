@@ -23,7 +23,7 @@ module.exports = class TestCommand extends BaseCommand {
 
   async gameIntro(client, message) {
     client.nistery = {
-        state: State.INTRO,  // change this so we don't use magic numbers
+        state: State.INTRO,
         players: []
     };
 
@@ -37,14 +37,15 @@ module.exports = class TestCommand extends BaseCommand {
   }
 
   async gameStart(client, channel) {
-    delete client.nistery.joiningMessage;
     if (client.nistery.players.length <= 0) {
         channel.send("It's not fun if there is nobody to catch the murderer 😟\n" +
         "You need at least 4 players for this game");
         return;
     }
 
+    delete client.nistery.joiningMessage;
     client.nistery.state = State.GAME;
+
     channel.send("Alright, let's start the game. I sent you a private message with some instructions\n" +
     `If you need more help, type ${client.prefix}nistery help`);
 
@@ -94,7 +95,7 @@ module.exports = class TestCommand extends BaseCommand {
         client.nistery.players[i].traits[userIndex] = userMessage.content;
     } catch(e) {
         console.log(e);
-        user.send("You took too long... Please have more attention next time");
+        user.send("You took too long... Please be more focused next time");
         client.nistery.players[i].traits[userIndex] = "normal";
       }
     }
@@ -117,8 +118,10 @@ module.exports = class TestCommand extends BaseCommand {
         else
           PMs.push(this.innoNight(client, player));
       }
+
       await Promise.all(PMs);
       const deadPos = await Promise.resolve(PMs[client.nistery.killerPos]);
+
       if (deadPos === -1)  // nobody died
         await channel.send("How lame 😒 The murderer didn't kill anybody tonight... But you can still lynch someone 😈");
       else {
@@ -170,7 +173,7 @@ module.exports = class TestCommand extends BaseCommand {
         message.react(react);
     });
 
-    try {  // there's a condition missing here
+    try {
       const reaction = await message.awaitReactions((r, u) =>
         u.id === user.id
         && reactions.includes(r.emoji.name)
@@ -235,7 +238,10 @@ module.exports = class TestCommand extends BaseCommand {
     let maxVotes = 0;
     client.nistery.players.forEach((p, i) => {
       const numVotes = client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === p.emoji).size;
-      if (numVotes > maxVotes) mostVoted = i;
+      if (numVotes > maxVotes) {
+        mostVoted = i;
+        maxVotes = numVotes;
+      }
     });
 
     if (client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === '❌').size > maxVotes
