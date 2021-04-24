@@ -8,11 +8,18 @@ module.exports = class MessageEvent extends BaseEvent {
   
   async run(client, reaction, user) {
     if (user.bot) return;
+
+    this.nisteryChecks(client, reaction, user);
+  }
+
+  nisteryChecks(client, reaction, user) {
+    if (!client.nistery) return;  // game is not active
+
     const emoji = reaction.emoji.name;
 
-    if (reaction.message.id === client.nistery?.joiningMessage && emoji === '🔪')
+    if (reaction.message.id === client.nistery.joiningMessage && emoji === '🔪')
       this.nisteryPlayerJoined(client, user, reaction.message);
-    if (reaction.message.id === client.nistery?.voteMessage)
+    if (reaction.message.id === client.nistery.voteMessage)
       this.nisteryLynchVoting(client, reaction, user);
   }
 
@@ -32,7 +39,7 @@ module.exports = class MessageEvent extends BaseEvent {
   nisteryLynchVoting(client, reaction, user) {
     const player = client.nistery.players.find(p => p.id === user.id);
     if (!player) { // user external to the game
-      reactions.users.remove(user);
+      reaction.users.remove(user);
       return;  
     }
 

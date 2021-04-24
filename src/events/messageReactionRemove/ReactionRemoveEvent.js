@@ -8,11 +8,18 @@ module.exports = class MessageEvent extends BaseEvent {
   
   async run(client, reaction, user) {
     if (user.bot) return;
-    const emoji = reaction.emoji.name;
 
-    if (reaction.message.id === client.nistery?.joiningMessage && emoji === '🔪')
+    this.nisteryChecks(client, reaction, user);
+  }
+
+  nisteryChecks(client, reaction, user) {
+    if (!client.nistery) return;  // game is not active
+
+    const emoji = reaction.emoji.name;
+  
+    if (reaction.message.id === client.nistery.joiningMessage && emoji === '🔪')
       this.nisteryPlayerLeft(client, user, reaction.message);
-    if (reaction.message.id === client.nistery?.voteMessage)
+    if (reaction.message.id === client.nistery.voteMessage)
       this.nisteryLynchUnvoting(client, reaction, user);
   }
 
