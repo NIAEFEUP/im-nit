@@ -4,6 +4,13 @@ function sleep(ms) {
   });
 }
 
+const State = {
+  INTRO: 1,
+  GAME: 2,
+  INVALID: 3
+}
+
 module.exports = {
-    sleep
+    sleep,
+    State
 }

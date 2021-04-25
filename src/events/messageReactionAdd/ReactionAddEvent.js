@@ -1,5 +1,5 @@
 const BaseEvent = require('../../utils/structures/BaseEvent');
-const State = require('../../utils/structures/NisteryStates');
+const { State } = require('../../commands/MurderNistery/utils');
 
 module.exports = class MessageEvent extends BaseEvent {
   constructor() {

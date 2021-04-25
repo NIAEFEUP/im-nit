@@ -1,6 +1,6 @@
+const { DMChannel } = require('discord.js');
 const BaseCommand = require('../../utils/structures/BaseCommand');
-const State = require('../../utils/structures/NisteryStates');
-const { sleep } = require('./utils');
+const { sleep, State } = require('./utils');
 const playerEmojis = ['😴', '😷', '🤥', '🤓', '🤔', '❌'];
 
 module.exports = class TestCommand extends BaseCommand {
@@ -23,6 +23,11 @@ module.exports = class TestCommand extends BaseCommand {
   }
 
   async gameIntro(client, message) {
+    if (message.channel instanceof DMChannel) {
+      message.channel.send("You can't play this game alone...");
+      return;
+    }
+
     client.nistery = {
         state: State.INTRO,
         players: []
