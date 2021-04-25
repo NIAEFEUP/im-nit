@@ -45,8 +45,10 @@ module.exports = class MessageEvent extends BaseEvent {
     let message = "Voting results:\n";
     const messageReactions = Array.from(reaction.message.reactions.cache.values());
     client.nistery.players.forEach((p) => {
-      const numVotes = messageReactions.find(r => r.emoji.name === p.emoji).count;
-      message += `${p.emoji} ${p.username}: ${numVotes - 1} votes\n`;
+      if (p.alive) {
+        const numVotes = messageReactions.find(r => r.emoji.name === p.emoji).count;
+        message += `${p.emoji} ${p.username}: ${numVotes - 1} votes\n`;
+      }
     });
     message += `❌ No lynch: ${messageReactions.find(r => r.emoji.name === '❌').count - 1} votes`;
     reaction.message.edit(message);

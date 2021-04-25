@@ -167,7 +167,7 @@ module.exports = class TestCommand extends BaseCommand {
     const reactions = [];
 
     client.nistery.players.forEach((player) => {
-      if (player.id === user.id) return;
+      if (player.id === user.id || !player.alive) return;
       messageString += player.username + ": " + player.emoji + "\n";
       reactions.push(player.emoji);
     });
@@ -230,13 +230,19 @@ module.exports = class TestCommand extends BaseCommand {
     await channel.send("The sun has risen 🌄 You have now 40 seconds to vote and lynch someone using the emojis below. The person with the majority of votes dies ☠️");
 
     let message = "Voting results:\n";
-    client.nistery.players.forEach((p) => message += `${p.emoji} ${p.username}: 0 votes\n`);
+    client.nistery.players.forEach((p) => {
+      if (p.alive)
+        message += `${p.emoji} ${p.username}: 0 votes\n`;
+    });
     message += "❌ No lynch: 0 votes";
 
     const voteMessage = await channel.send(message);
     client.nistery.voteMessage = voteMessage;
 
-    await client.nistery.players.forEach(async (p) => await voteMessage.react(p.emoji));
+    await client.nistery.players.forEach(async (p) => {
+      if (p.alive)
+        await voteMessage.react(p.emoji);
+    });
     await voteMessage.react('❌');
 
     await sleep(40000);
@@ -246,6 +252,7 @@ module.exports = class TestCommand extends BaseCommand {
     let maxVotes = 0;
     const messageReactions = Array.from(voteMessage.reactions.cache.values());
     client.nistery.players.forEach((p, i) => {
+      if (!p.alive) return;
       const numVotes = messageReactions.find(r => r.emoji.name === p.emoji).count;
       if (numVotes > maxVotes) {
         mostVoted = i;
