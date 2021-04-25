@@ -9,10 +9,10 @@ module.exports = class MessageEvent extends BaseEvent {
   async run(client, reaction, user) {
     if (user.bot) return;
 
-    this.nisteryChecks(client, reaction, user);
+    await this.nisteryChecks(client, reaction, user);
   }
 
-  nisteryChecks(client, reaction, user) {
+  async nisteryChecks(client, reaction, user) {
     if (!client.nistery) return;  // game is not active
 
     const emoji = reaction.emoji.name;
@@ -20,7 +20,7 @@ module.exports = class MessageEvent extends BaseEvent {
     if (reaction.message.id === client.nistery.joiningMessageID && emoji === '🔪')
       this.nisteryPlayerJoined(client, user, reaction.message);
     if (reaction.message.id === client.nistery.voteMessage?.id)
-      this.nisteryLynchVoting(client, reaction, user);
+      await this.nisteryLynchVoting(client, reaction, user);
   }
 
   nisteryPlayerJoined(client, user, message) {
@@ -36,29 +36,30 @@ module.exports = class MessageEvent extends BaseEvent {
     `Type \`${client.prefix}nistery start\` to start the game`);
   }
 
-  nisteryLynchVoting(client, reaction, user) {
+  async nisteryLynchVoting(client, reaction, user) {
     const player = client.nistery.players.find(p => p.id === user.id);
     if (!player) { // user external to the game
-      reaction.users.remove(user);
-      return;  
+      await reaction.users.remove(user);
+      return;
     }
 
     const emojiName = reaction.emoji.name;
     const votedPlayer = client.nistery.players.find(p => p.emoji === emojiName);
     if (!votedPlayer && emojiName !== '❌') return;  // useless emoji
 
-    reaction.message.reactions.cache.forEach(r => {
+    await reaction.message.reactions.cache.forEach(async r => {
       if (r.emoji.name !== emojiName)
-        r.users.remove(user);
+        await r.users.remove(user);
     });
 
     // Update message
     let message = "Voting results:\n";
+    const messageReactions = Array.from(reaction.message.reactions.cache.values());
     client.nistery.players.forEach((p) => {
-      const numVotes = client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === p.emoji).size;
+      const numVotes = messageReactions.find(r => r.emoji.name === p.emoji).count;
       message += `${p.emoji} ${p.username}: ${numVotes - 1} votes\n`;
     });
-    message += `❌ No lynch: ${client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === '❌').size} votes`;
-    reaction.message.edit(message);
+    message += `❌ No lynch: ${messageReactions.find(r => r.emoji.name === '❌').count - 1} votes`;
+    await reaction.message.edit(message);
   }
 }

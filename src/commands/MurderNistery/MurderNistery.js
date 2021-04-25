@@ -38,6 +38,11 @@ module.exports = class TestCommand extends BaseCommand {
   }
 
   async gameStart(client, channel) {
+    if (!client.nistery) {
+      channel.send("There is not active game!");
+      return;
+    }
+
     if (client.nistery.players.length <= 3) {
         channel.send("It's not fun if there is nobody to catch the murderer 😟\n" +
         "You need at least 4 players for this game");
@@ -134,7 +139,7 @@ module.exports = class TestCommand extends BaseCommand {
         let message = `Oh no 😭 **${victim}** was murdered last night 😱 I was totally not exepecting that 🤭\n` +
         `The culprit looked at his victim through the window and thought to himself how **${victimTrait}** this person was. But they had to die anyway\n` +
         "\nHowever, just before getting their throat sliced, the prey caught a glance of their predator and told him:\n" +
-        `\`You little prick! And here I was just thinking how **${killerTrait}** you were\`\n`;
+        `\`You little prick! And here I was just thinking how ${killerTrait} you were\`\n`;
 
         if (will)
           message += `\nAlong with their body, the police also found a written will:\n\`${will}\``;
@@ -163,7 +168,7 @@ module.exports = class TestCommand extends BaseCommand {
 
     client.nistery.players.forEach((player) => {
       if (player.id === user.id) return;
-      messageString += player.username + ": " + player.emoji;
+      messageString += player.username + ": " + player.emoji + "\n";
       reactions.push(player.emoji);
     });
     reactions.push('❌');
@@ -231,29 +236,30 @@ module.exports = class TestCommand extends BaseCommand {
     const voteMessage = await channel.send(message);
     client.nistery.voteMessage = voteMessage;
 
-    client.nistery.players.forEach((p) => voteMessage.react(p.emoji));
-    voteMessage.react('❌');
+    await client.nistery.players.forEach(async (p) => await voteMessage.react(p.emoji));
+    await voteMessage.react('❌');
 
     await sleep(40000);
     delete client.nistery.voteMessage;
 
     let mostVoted = 0;
     let maxVotes = 0;
+    const messageReactions = Array.from(voteMessage.reactions.cache.values());
     client.nistery.players.forEach((p, i) => {
-      const numVotes = voteMessage.reactions.cache.filter(r => r.emoji.name === p.emoji).size;
+      const numVotes = messageReactions.find(r => r.emoji.name === p.emoji).count;
       if (numVotes > maxVotes) {
         mostVoted = i;
         maxVotes = numVotes;
       }
     });
 
-    if (voteMessage.reactions.cache.filter(r => r.emoji.name === '❌').size > maxVotes
+    if (messageReactions.find(r => r.emoji.name === '❌').count > maxVotes
         || maxVotes - 1 <= client.nistery.players.length / 2) {
       await channel.send("The majority didn't vote on any player so nobody is lynched! How lame... 😒");
       return;
     }
   
-    const deadPlayer = client.nistery.player[mostVoted];
+    const deadPlayer = client.nistery.players[mostVoted];
     deadPlayer.alive = false;
     client.nistery.deadCount++;
 

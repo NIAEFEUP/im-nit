@@ -43,11 +43,12 @@ module.exports = class MessageEvent extends BaseEvent {
 
     // Update message
     let message = "Voting results:\n";
+    const messageReactions = Array.from(reaction.message.reactions.cache.values());
     client.nistery.players.forEach((p) => {
-      const numVotes = client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === p.emoji).size;
+      const numVotes = messageReactions.find(r => r.emoji.name === p.emoji).count;
       message += `${p.emoji} ${p.username}: ${numVotes - 1} votes\n`;
     });
-    message += `❌ No lynch: ${client.nistery.voteMessage.reactions.cache.filter(r => r.emoji.name === '❌').size} votes`;
+    message += `❌ No lynch: ${messageReactions.find(r => r.emoji.name === '❌').count - 1} votes`;
     reaction.message.edit(message);
   }
 }
