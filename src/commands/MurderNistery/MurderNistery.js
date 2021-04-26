@@ -261,7 +261,7 @@ module.exports = class TestCommand extends BaseCommand {
     });
 
     if (messageReactions.find(r => r.emoji.name === '❌').count > maxVotes
-        || maxVotes - 1 <= client.nistery.players.length / 2) {
+        || maxVotes - 1 <= (client.nistery.players.length - client.nistery.deadCount) / 2) {
       await channel.send("The majority didn't vote on any player so nobody is lynched! How lame... 😒");
       return;
     }
