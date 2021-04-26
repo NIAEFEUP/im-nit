@@ -114,12 +114,11 @@ module.exports = class TestCommand extends BaseCommand {
   async mainGame(client, channel) {
     client.nistery.deadCount = 0;
 
-    channel.send(`${client.nistery.players.length} young friends arrive at the voice channel where they always meet each other. ` + 
-    "Little do they know that one of them had already been corrupted by a crazy self-aware bot 🤭\n" +
-    "Let's start this!");
+    channel.send(`${client.nistery.players.length} friends arrive at the voice channel where they always meet each other. ` + 
+    "But this isn't a day like the others 🤭\n");
 
     while (true) {
-      channel.send("Uhuu, it's night time 🤩 Dear murderer, you can choose your victim. Everyone else can also set a death message, if they wish to... 😒");
+      channel.send("It's night time 🌑 Murderer, you can choose your victim. Everyone else can write a will");
 
       const PMs = [];
       for (let player of client.nistery.players) {
@@ -133,16 +132,16 @@ module.exports = class TestCommand extends BaseCommand {
       const deadPos = await Promise.resolve(PMs[client.nistery.killerPos]);
 
       if (deadPos === -1)  // nobody died
-        await channel.send("How lame 😒 The murderer didn't kill anybody tonight... But you can still lynch someone 😈");
+        await channel.send("How lame 😒 The murderer didn't kill anybody tonight...");
       else {
         const victim = client.nistery.players[deadPos].username;
         const victimTrait = client.nistery.players[deadPos].traits[client.nistery.killerPos];
         const killerTrait = client.nistery.players[client.nistery.killerPos].traits[deadPos];
         const will = client.nistery.players[deadPos].will;
 
-        let message = `Oh no 😭 **${victim}** was murdered last night 😱 I was totally not exepecting that 🤭\n` +
-        `The culprit looked at his victim through the window and thought to himself how **${victimTrait}** this person was. But they had to die anyway\n` +
-        "\nHowever, just before getting their throat sliced, the prey caught a glance of their predator and told him:\n" +
+        let message = `Oh no 😭 **${victim}** died last night\n` +
+        `The culprit looked at his victim thought how **${victimTrait}** this person was. But they had to die anyway\n` +
+        "\nHowever, just before getting meeting their end, the victim told him:\n" +
         `\`You little prick! And here I was just thinking how ${killerTrait} you were\`\n`;
 
         if (will)
@@ -226,7 +225,7 @@ module.exports = class TestCommand extends BaseCommand {
 
   async lynch(client, channel) {
     // we should only accept a vote if the majority voted for that player
-    await channel.send("The sun has risen 🌄 You have now 40 seconds to vote and lynch someone using the emojis below. The person with the majority of votes dies ☠️");
+    await channel.send("The sun has risen 🌄 You have now 1 minute to vote and lynch someone using the emojis below. The person with the majority of votes dies ☠️");
 
     let message = "Voting results:\n";
     client.nistery.players.forEach((p) => {
@@ -244,7 +243,7 @@ module.exports = class TestCommand extends BaseCommand {
     });
     await voteMessage.react('❌');
 
-    await sleep(40000);
+    await sleep(60000);
     delete client.nistery.voteMessage;
 
     let mostVoted = 0;
