@@ -24,7 +24,11 @@ module.exports = class MessageEvent extends BaseEvent {
   }
 
   nisteryPlayerJoined(client, user, message) {
-    if (client.nistery.state != State.INTRO || client.nistery.players.length >= 5) return;
+    if (client.nistery.state != State.INTRO) return;
+    if (client.nistery.players.length >= 5) {
+      await reaction.users.remove(user);
+      return;
+    }
 
     for (let player of client.nistery.players)
         if (player.id === user.id) return;
