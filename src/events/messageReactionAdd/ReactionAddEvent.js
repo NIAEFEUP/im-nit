@@ -18,12 +18,12 @@ module.exports = class MessageEvent extends BaseEvent {
     const emoji = reaction.emoji.name;
 
     if (reaction.message.id === client.nistery.joiningMessageID && emoji === '🔪')
-      this.nisteryPlayerJoined(client, user, reaction.message);
+      await this.nisteryPlayerJoined(client, user, reaction.message);
     if (reaction.message.id === client.nistery.voteMessage?.id)
       await this.nisteryLynchVoting(client, reaction, user);
   }
 
-  nisteryPlayerJoined(client, user, message) {
+  async nisteryPlayerJoined(client, user, message) {
     if (client.nistery.state != State.INTRO) return;
     if (client.nistery.players.length >= 5) {
       await reaction.users.remove(user);

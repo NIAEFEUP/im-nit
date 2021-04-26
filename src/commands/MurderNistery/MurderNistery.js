@@ -105,7 +105,6 @@ module.exports = class TestCommand extends BaseCommand {
         userMessage = userMessage.first();
         client.nistery.players[i].traits[userIndex] = userMessage.content;
     } catch(e) {
-        console.log(e);
         user.send("You took too long... Please be more focused next time");
         client.nistery.players[i].traits[userIndex] = "normal";
       }
@@ -127,7 +126,7 @@ module.exports = class TestCommand extends BaseCommand {
         if (player.id === client.nistery.killerID)
           PMs.push(this.nightKiller(client, player));
         else
-          PMs.push(this.innoNight(client, player));
+          PMs.push(this.innoNight(player));
       }
 
       await Promise.all(PMs);
@@ -179,10 +178,7 @@ module.exports = class TestCommand extends BaseCommand {
     reactions.push('❌');
 
     const message = await user.send(messageString);
-    reactions.forEach((react) => {
-      if (react != client.nistery.players[client.nistery.killerPos].emoji)
-        message.react(react);
-    });
+    reactions.forEach(react => message.react(react));
 
     try {
       const reaction = await message.awaitReactions((r, u) =>
@@ -204,13 +200,12 @@ module.exports = class TestCommand extends BaseCommand {
           return i;
         }
     } catch(e) {
-      console.log(e);
       user.send("You took too long to choose your victim. Now you can't kill anybody 😤");
       return -1;
     }
   }
 
-  async innoNight(client, user) {
+  async innoNight(user) {
     if (!user.alive) return;
     user.send("Please type your new death message. If you don't want to change it, answer with ❌");
 
@@ -225,7 +220,6 @@ module.exports = class TestCommand extends BaseCommand {
       if (userMessage === '❌') return;
       user.will = userMessage;
     } catch(e) {
-      console.log(e);
       user.send("The night has ended. Try to type faster next time 😠");
     }
   }
@@ -256,6 +250,7 @@ module.exports = class TestCommand extends BaseCommand {
     let mostVoted = 0;
     let maxVotes = 0;
     const messageReactions = Array.from(voteMessage.reactions.cache.values());
+
     client.nistery.players.forEach((p, i) => {
       if (!p.alive) return;
       const numVotes = messageReactions.find(r => r.emoji.name === p.emoji).count;
