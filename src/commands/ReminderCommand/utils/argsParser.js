@@ -24,6 +24,11 @@ const argsParser = (args, parsingType) => {
                 if(args[0] == 'and') args.shift();   // ignore some human language
 
                 let [timeOffset, timeUnits] = args;     // grab the next 2 args
+
+                if(isNaN(timeOffset)){
+                    return [];
+                }
+
                 if(timeUnits == 'minute' || timeUnits == 'hour' || timeUnits == 'day' || timeUnits == 'month'){
                     timeUnits += "s";
                 }
@@ -41,25 +46,25 @@ const argsParser = (args, parsingType) => {
                         currDate += parseInt(timeOffset) * 30 * 24 * 60 * 60 * milliToSeconds;  // assuming all months have 30 days
                         break;
                     default:
-                        break;
+                        return [];
                 }
                 args.shift(); args.shift();
             }
             
             let resultDate = new Date(currDate).toLocaleString();
 
-            let [date, timeAndTimeZone] = resultDate.split(",");
-            timeAndTimeZone = timeAndTimeZone.trim();   // remove white spaces from the beggining and end of the string
+            let [date, timeAndClockType] = resultDate.split(",");
+            timeAndClockType = timeAndClockType.trim();   // remove white spaces from the beggining and end of the string
 
-            let [time, timezone] = timeAndTimeZone.split(" ");
+            let [time, clockType] = timeAndClockType.split(" ");
 
             let [month, day, year] = date.split("/");
 
             date = day + "/" + month + "/" + year;
 
-            console.log(date, time, timezone);
+            console.log(date, time, clockType);
 
-            return [date, time, timezone];
+            return [date, time, clockType];
     }
 }
 
