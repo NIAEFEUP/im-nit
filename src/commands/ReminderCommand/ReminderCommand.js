@@ -25,7 +25,7 @@ module.exports = class ReminderCommand extends BaseCommand {
 
     let identifierArg = args[0];
 
-    if(!identifierArg || identifierArg == 'help'){
+    if(!identifierArg || identifierArg == 'help' || identifierArg == 'HELP'){
         showInstructions(message);
         return;
     }

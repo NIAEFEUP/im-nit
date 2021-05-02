@@ -21,9 +21,10 @@ const argsParser = (args, parsingType) => {
             const milliToSeconds = 1000;
 
             while(args.length > 0){
-                if(args[0] == 'and') args.shift();   // ignore some human language
+                if(args[0].toLowerCase() == 'and') args.shift();   // ignore some human language
 
                 let [timeOffset, timeUnits] = args;     // grab the next 2 args
+                timeUnits = timeUnits.toLowerCase();
 
                 if(isNaN(timeOffset)){
                     return [];
@@ -61,8 +62,6 @@ const argsParser = (args, parsingType) => {
             let [month, day, year] = date.split("/");
 
             date = day + "/" + month + "/" + year;
-
-            console.log(date, time, clockType);
 
             return [date, time, clockType];
     }
