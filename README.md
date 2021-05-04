@@ -3,9 +3,8 @@ Discord bot
 
 ## Database
 This bot uses a database. In order to set it up, you should follow this steps:
-<ol>
-    <li>Create a mongoDB account</li>
-    <li>Add a project inside it and a following cluster</li>
-    <li>Choose to connect an application, select node.js and copy the connection string</li>
-    <li>Finnaly, paste the string as MONGO_PATH value in the .env file (The .env format is specified on .env.template)</li>
-</ol>
+
+1. Create a mongoDB account
+2. Add a project inside it and a following cluster
+3. Choose to connect an application, select node.js and copy the connection string
+4. Finnally, paste the string as MONGO_PATH value in the .env file (The .env format is specified on .env.template)

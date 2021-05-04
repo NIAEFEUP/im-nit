@@ -22,7 +22,12 @@ module.exports = class ListOfCommands extends BaseCommand {
             "`" + client.prefix + "help` - I'll send you this message \n" + 
             "\n" + 
             "**Text Channels** \n" +
-            "I allow you to have have texts channels that are only available when you are using the voice channel!");
+            "I allow you to have have texts channels that are only available when you are using the voice channel!\n" +
+            "\n" + 
+            "**Schedule** \n" + 
+            "`" + client.prefix + "schedule <args>` - Schedule a message to a moment in time \n" + 
+            "`" + client.prefix + "schedule help` - Explain how to use the schedule command \n"
+            );
     }
 
 }

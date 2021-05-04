@@ -12,7 +12,9 @@ const scheduledSchema = new mongoose.Schema({
     },
     content: reqString,
     guildId: reqString,
-    channelId: reqString,
+    channelId: {
+        type: String,
+    },
     userId: reqString,
 });
 

@@ -3,10 +3,12 @@ const momentTimezone = require('moment-timezone');
 const { MessageCollector } = require('discord.js');
 
 const scheduledSchema = require('../../models/scheduled-schema');
+const {argsParser, parsingTypes} = require('./utils/argsParser');
+const showInstructions = require('./utils/help');
 
 module.exports = class ReminderCommand extends BaseCommand {
   constructor() {
-    super('schedule', 'textAnswers', []);   // change the name to remind later
+    super('schedule', 'textAnswers', []);   // 'remindme' is used by other bots
   }
 
   async run(client, message, args) {    // expectedArgs: '<Channel tag> <YYYY/MM/DD> <HH:MM> <"AM" or "PM"> <Timezone>',
@@ -14,20 +16,33 @@ module.exports = class ReminderCommand extends BaseCommand {
     
     const userID = message.author.id;   // userID will be needed to tag the person on the reminder
 
-    const targetChannel = mentions.channels.first();
-    
-    if(!targetChannel){
-        message.reply('Please tag a channel to send your message in');
+    const targetChannel = mentions.channels.first();    // if the targetChannel is not specified, the message is sent to the user
+
+    if(targetChannel){
+        // Remove the 1st argument from the args array (mentioned channel)
+        args.shift();
+    }
+
+    let identifierArg = args[0];
+
+    if(!identifierArg || identifierArg == 'help' || identifierArg == 'HELP'){
+        showInstructions(message);
         return;
     }
 
-    // Remove the 1st argument from the args array
-    args.shift();
+    let parsingType = parsingTypes.HUMAN_LANGUAGE;
 
-    let [date, time, clockType, timeZone] = args;
+    if(isNaN(identifierArg)){   // if not a number
+        parsingType = parsingTypes.FORMAL;
+    }
+
+    let [date, time, clockType, timeZone] = argsParser(args, parsingType);
     
+    if(clockType){
+        clockType = clockType.toUpperCase();
+    }
     if(clockType !== 'AM' && clockType !== 'PM'){
-        message.reply(`You must provide either "AM" or "PM", you provided "${clockType}"`);
+        showInstructions(message);
         return;
     }
 
@@ -69,7 +84,7 @@ module.exports = class ReminderCommand extends BaseCommand {
                 date: targetDate.valueOf(),
                 content: collectedMessage.content,
                 guildId: guild.id,
-                channelId: targetChannel.id,
+                channelId: targetChannel ? targetChannel.id : null,
                 userId: userID,
             }).save();
             message.reply('Your message has been scheduled.');
