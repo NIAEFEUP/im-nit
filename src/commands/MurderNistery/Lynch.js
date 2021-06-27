@@ -1,4 +1,5 @@
 const { sleep } = require('./utils');
+const VOTING_TIME = 60000;  // milliseconds
 
 module.exports = async function lynch(client, channel) {
   // we should only accept a vote if the majority voted for that player
@@ -20,7 +21,7 @@ module.exports = async function lynch(client, channel) {
   });
   await voteMessage.react('❌');
 
-  await sleep(60000);
+  await sleep(VOTING_TIME);
   delete client.nistery.voteMessage;
 
   let mostVoted = 0;
