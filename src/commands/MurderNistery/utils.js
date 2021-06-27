@@ -10,7 +10,10 @@ const State = {
   INVALID: 3
 }
 
+const playerEmojis = ['😴', '😷', '🤥', '🤓', '🤔', '❌'];
+
 module.exports = {
     sleep,
-    State
+    State,
+    playerEmojis
 }
