@@ -19,7 +19,7 @@ module.exports = async function gameLoop(client, channel) {
       else
         PMs.push(nightInnocent(player));
     }
-
+    // Wait for all the players' actions and get the dead player's index
     await Promise.all(PMs);
     const deadPos = await Promise.resolve(PMs[client.nistery.killerPos]);
 
@@ -44,12 +44,17 @@ module.exports = async function gameLoop(client, channel) {
       await channel.send(message);
     }
 
+    /*
+      The game ends if the number of alive killers is at least the same as the number of alive innocent players.
+      Right now, we always have 1 killer but this can change.
+    */
     if (client.nistery.deadCount >= client.nistery.players.length - 2) {
       endGame(client, channel);
       return;
     }
 
     await lynch(client, channel);
+    
     if (!client.nistery.players[client.nistery.killerPos].alive || client.nistery.deadCount >= client.nistery.players.length - 2) {
       endGame(client, channel);
       return;

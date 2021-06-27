@@ -1,6 +1,9 @@
+const DEFAULT_TRAIT = "normal";
+const ANSWER_TIME = 30000;  // milliseconds
+
 module.exports = async function askPlayersTraits(client, user, userIndex) {
   if (user.id !== client.nistery.killerID) {
-    await user.send("You are an innocent user of this Discord 😖. Your job is to catch the friend of yours who I turned into a murderer 😳\n" +
+    await user.send("You are an innocent user of this Discord 😖. Your job is to catch the friend of yours whom I turned into a murderer 😳\n" +
       "For that, I need you to tell me a characteristic of each one of the players, so they can be used as hints 🕵️\n" +
       "And remember: don't be too **obvious** or too **vague**");
   } else {
@@ -21,15 +24,15 @@ module.exports = async function askPlayersTraits(client, user, userIndex) {
     try {
       let userMessage = await user.dmChannel.awaitMessages(m => m.author.id === user.id, {
         max: 1,
-        time: 30000,
+        time: ANSWER_TIME,
         errors: ['time']
       });
-
+      // Parse the response and save it
       userMessage = userMessage.first();
       client.nistery.players[i].traits[userIndex] = userMessage.content;
   } catch(e) {
       user.send("You took too long... Please be more focused next time");
-      client.nistery.players[i].traits[userIndex] = "normal";
+      client.nistery.players[i].traits[userIndex] = DEFAULT_TRAIT;
     }
   }
 }

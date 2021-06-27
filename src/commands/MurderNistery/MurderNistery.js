@@ -8,7 +8,7 @@ module.exports = class TestCommand extends BaseCommand {
   }
 
   async run(client, message, args) {
-    if (args[0] && args[0] === "start") {
+    if (args[0] === "start") {
         gameStart(client, message.channel);
         return;
     }

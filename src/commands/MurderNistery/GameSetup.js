@@ -12,11 +12,11 @@ module.exports = async function gameSetup(client, message) {
       players: []
   };
 
-  const newMessage = await message.channel.send("Welcome to Murder NIstery! The game where you can kill your friends for fun 😈\n" +
+  const welcomeMessage = await message.channel.send("Welcome to Murder NIstery! The game where you can kill your friends for fun 😈\n" +
     "Sounds good? Then hit the emoji below to join in 🤫\n" +
     "Players: 0/5\n" +
     `Type \`${client.prefix}nistery start\` to start the game`);
 
-  newMessage.react('🔪');
-  client.nistery.joiningMessageID = newMessage.id;
+  welcomeMessage.react('🔪');
+  client.nistery.joiningMessageID = welcomeMessage.id;
 }

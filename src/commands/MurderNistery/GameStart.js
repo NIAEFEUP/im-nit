@@ -4,7 +4,7 @@ const gameLoop = require('./GameLoop');
 
 module.exports = async function gameStart(client, channel) {
   if (!client.nistery) {
-    channel.send("There is not active game!");
+    channel.send("There isn't an active game!");
     return;
   }
 
@@ -20,6 +20,7 @@ module.exports = async function gameStart(client, channel) {
   channel.send("Alright, let's start the game. I sent you a private message with some instructions\n" +
   `If you need more help, type ${client.prefix}nistery help`);
 
+  // Choose the killer randomly
   client.nistery.killerPos = Math.floor(Math.random() * client.nistery.players.length);
   client.nistery.killerID = client.nistery.players[client.nistery.killerPos].id;
 
@@ -31,6 +32,7 @@ module.exports = async function gameStart(client, channel) {
     player.alive = true;
     messagingPromises.push(askPlayersTraits(client, player, i));
   }
+  // Wait for all the players' actions
   await Promise.all(messagingPromises);
   gameLoop(client, channel);
 }
