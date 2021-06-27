@@ -1,5 +1,5 @@
 const BaseCommand = require('../../utils/structures/BaseCommand');
-const gameIntro = require('./GameIntro');
+const gameSetup = require('./GameSetup');
 const gameStart = require('./GameStart');
 
 module.exports = class TestCommand extends BaseCommand {
@@ -18,6 +18,6 @@ module.exports = class TestCommand extends BaseCommand {
         return;
     }
 
-    gameIntro(client, message);
+    gameSetup(client, message);
   }
 }

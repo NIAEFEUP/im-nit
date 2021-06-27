@@ -1,6 +1,6 @@
 const { State, playerEmojis } = require('./utils');
 const askPlayersTraits = require('./AskPlayersTraits');
-const mainGame = require('./MainGame');
+const gameLoop = require('./GameLoop');
 
 module.exports = async function gameStart(client, channel) {
   if (!client.nistery) {
@@ -32,5 +32,5 @@ module.exports = async function gameStart(client, channel) {
     messagingPromises.push(askPlayersTraits(client, player, i));
   }
   await Promise.all(messagingPromises);
-  mainGame(client, channel);
+  gameLoop(client, channel);
 }

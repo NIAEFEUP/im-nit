@@ -3,7 +3,7 @@ const endGame = require('./EndGame');
 const nightKiller = require('./NightKiller');
 const nightInnocent = require('./NightInnocent');
 
-module.exports = async function mainGame(client, channel) {
+module.exports = async function gameLoop(client, channel) {
   client.nistery.deadCount = 0;
 
   channel.send(`${client.nistery.players.length} friends arrive at the voice channel where they always meet each other. ` + 

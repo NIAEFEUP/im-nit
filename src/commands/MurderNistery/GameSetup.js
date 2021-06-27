@@ -1,7 +1,7 @@
 const { DMChannel } = require('discord.js');
 const { State } = require('./utils');
 
-module.exports = async function gameIntro(client, message) {
+module.exports = async function gameSetup(client, message) {
   if (message.channel instanceof DMChannel) {
     message.channel.send("You can't play this game alone...");
     return;
